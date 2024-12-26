@@ -5,8 +5,6 @@ var app = express()
 // databases
 var pmysql = require("promise-mysql");
 var mongoDB = require("./databases/mongodb.js")
-// pages
-var home = require("./pages/home.html")
 // setting render engine
 app.set('view engine', 'ejs')
 // allows access request body
@@ -17,6 +15,19 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.listen(3004, () => {
     console.log("Application listening on port 3004");
 })
+
+// roots //
+app.get('/students', (req, res) => {
+    res.render('students');
+});
+
+app.get('/grades', (req, res) => {
+    res.render('grades');
+});
+
+app.get('/lecturers', (req, res) => {
+    res.render('lecturers');
+});
 
 // home page
 app.get("/", (req, res) => {
