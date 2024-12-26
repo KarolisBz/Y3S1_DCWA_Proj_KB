@@ -1,3 +1,4 @@
+// class fields
 var pmysql = require("promise-mysql");
 var pool;
 
@@ -17,17 +18,17 @@ pmysql
     console.log("pool error:" + e);
   });
 
-var getStudents = function() {
-    return new Promise((reslove, reject) => {
-        pool.query("SELECT * FROM student")
-            .then((data) => {
-                console.log("D="+JSON.stringify(data));
-                reslove(data);
-            })
-            .catch((error) => {
-                reject(error)
-            })
-    })
+var getStudents = function () {
+  return new Promise((reslove, reject) => {
+    pool.query("SELECT * FROM student ORDER BY sid ASC")
+      .then((data) => {
+        console.log("D=" + JSON.stringify(data));
+        reslove(data);
+      })
+      .catch((error) => {
+        reject(error)
+      })
+  })
 };
 
 var deleteStudent = function (student_Id) {
@@ -44,4 +45,4 @@ var deleteStudent = function (student_Id) {
   });
 };
 
-module.exports = {getStudents, deleteStudent}
+module.exports = { getStudents, deleteStudent }
