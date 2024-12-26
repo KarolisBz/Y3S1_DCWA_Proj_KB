@@ -11,6 +11,10 @@
 <body>
     <!-- EJS BODY -->
     <h1>Students</h1>
+    <a href="/students/add">Add Student</a>
+    <br>
+    <a href="/home.html">Home</a>
+
     <table>
         <tr>
             <th>Student ID</th>
@@ -31,10 +35,10 @@
                     <%= student.age %>
                 </td>
                 <td>
-                    <a href="/students/delete/<%=student.sid%>">Update</a>
+                    <a href="/students/update/<%=student.sid%>">Update</a>
                 </td>
             </tr>
-            <% }) %>
+        <% }) %>
     </table>
 </body>
 

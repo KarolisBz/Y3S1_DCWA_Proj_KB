@@ -12,6 +12,7 @@ let bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
 // Serving static CSS files from the static directory
 app.use(express.static('static'));
+app.use(express.static('pages'));
 
 // application starts and listens on port 3004
 app.listen(3004, () => {
@@ -24,6 +25,8 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/pages/home.html");
 })
 
+
+// students //
 app.get('/students', (req, res) => {
     mySqldb.getStudents()
         .then((data) => {
@@ -34,10 +37,17 @@ app.get('/students', (req, res) => {
         })
 });
 
+// update student
+app.get('/students/update/:sid', (req, res) => {
+    res.render("updateStudent", { "errors": undefined });
+});
+
+// grades //
 app.get('/grades', (req, res) => {
     res.render('grades');
 });
 
+// lecturers //
 app.get('/lecturers', (req, res) => {
     res.render('lecturers');
 });

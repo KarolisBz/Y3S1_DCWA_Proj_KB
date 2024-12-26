@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students</title>
+    <link rel="stylesheet" href="/styleSheet.css">
+</head>
+
+<body>
+    <!-- EJS BODY -->
+    <a href="/home.html">Home</a>
+    <h1>Update Student</h1>
+
+    <!-- Display errors -->
+    <% if (errors !=undefined) { %>
+        <ul>
+            <% errors.forEach((error)=> { %>
+                <li>
+                    <%= error.msg %>
+                </li>
+                <% }) %>
+        </ul>
+    <% } %>
+
+    <form action="/updateStudent" method="POST">
+        <label>Student ID:</label>
+        <input type="text" name="id"><br>
+        <label>Name</label>
+        <input type="text" name="name"><br>
+        <label>Sage</label>
+        <input type="text" name="age"><br>
+        <input type="submit" value="OK">
+    </form>
+</body>
+
+</html>
