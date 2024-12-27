@@ -174,3 +174,8 @@ app.get("/lecturer/delete/:lid", (req, res) => {
             }
         })
 });
+
+// grade analytics//
+app.get('/gradeAnalytics', (req, res) => {
+    res.sendFile(__dirname + "/pages/gradeAnalytics.html");
+});
