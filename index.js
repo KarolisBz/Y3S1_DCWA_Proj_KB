@@ -2,17 +2,24 @@
 var express = require('express')
 var ejs = require("ejs")
 var app = express()
+
 // databases
 var mySqldb = require("./databases/mySqldb.js")
 var mongoDB = require("./databases/mongodb.js")
+
 // setting render engine
 app.set('view engine', 'ejs')
+
 // allows access request body
 let bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
+
 // Serving static CSS files from the static directory
 app.use(express.static('static'));
 app.use(express.static('pages'));
+
+// allows for easier validation
+const { check, validationResult } = require('express-validator');
 
 // application starts and listens on port 3004
 app.listen(3004, () => {
@@ -37,10 +44,44 @@ app.get('/students', (req, res) => {
         })
 });
 
-// update student
-app.get('/students/update/:sid', (req, res) => {
-    res.render("updateStudent", { "errors": undefined });
+// update student page
+app.get('/student/update/:sid', (req, res) => {
+    mySqldb.getStudent(req.params.sid)
+        .then((data) => {
+            console.log(data)
+            res.render("updateStudent", { "errors": undefined, "student": data[0] });
+        })
+        .catch((error) => {
+            res.send(error)
+        })
 });
+
+// handles updating student
+app.post("/updateStudent",
+    [
+        check("name").isLength({ min: 2 })
+            .withMessage("Name should be a minimum of 2 characters"),
+
+        check("age").isInt({ min: 18 })
+            .withMessage("Age must be 18 or older")
+    ],
+    (req, res) => {
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.render("updateStudent", { errors: errors.errors, student: req.body })
+        } else {
+            mySqldb.updateStudent(req.body)
+                .then((data) => {
+                    //console.log(data)
+                    res.redirect("/students");
+                })
+                .catch((error) => {
+                    console.log(error)
+                    res.render("updateStudent", { errors: [error], student: req.body });
+                });
+        }
+    })
 
 // grades //
 app.get('/grades', (req, res) => {

@@ -31,6 +31,32 @@ var getStudents = function () {
   })
 };
 
+var getStudent = function (student_Id) {
+  return new Promise((reslove, reject) => {
+    pool.query("SELECT * FROM student WHERE sid = '" + student_Id + "';")
+      .then((data) => {
+        console.log("D=" + JSON.stringify(data));
+        reslove(data);
+      })
+      .catch((error) => {
+        reject(error)
+      })
+  })
+}
+
+var updateStudent = function (student) {
+  return new Promise((reslove, reject) => {
+    pool.query("UPDATE student SET name = '" + student.name + "', age = " + student.age + " WHERE sid = '" + student.sid + "';")
+      .then((data) => {
+        console.log("D=" + JSON.stringify(data));
+        reslove(data);
+      })
+      .catch((error) => {
+        reject(error)
+      })
+  })
+};
+
 var deleteStudent = function (student_Id) {
   return new Promise((reslove, reject) => {
     pool
@@ -45,4 +71,4 @@ var deleteStudent = function (student_Id) {
   });
 };
 
-module.exports = { getStudents, deleteStudent }
+module.exports = { getStudents, deleteStudent, updateStudent, getStudent}
