@@ -26,11 +26,11 @@
 
     <form action="/addStudent" method="POST">
         <label>Student ID:</label>
-        <input type="text" name="sid"><br>
+        <input type="text" name="sid" value="<%= student.sid %>"><br>
         <label>Name</label>
-        <input type="text" name="name"><br>
+        <input type="text" name="name" value="<%= student.name %>"><br>
         <label>Age</label>
-        <input type="number" name="age"><br>
+        <input type="number" name="age" value="<%= student.age %>"><br>
         <input type="submit" value="OK">
     </form>
 </body>
