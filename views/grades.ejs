@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students</title>
+    <link rel="stylesheet" href="styleSheet.css">
+</head>
+
+<body>
+    <!-- EJS BODY -->
+    <h1>Grades</h1>
+    <a href="/home.html">Home</a>
+
+    <table>
+        <tr>
+            <th>Student ID</th>
+            <th>Module</th>
+            <th>Grade</th>
+        </tr>
+        <% students.forEach((student)=>
+            { %>
+            <tr>
+                <td>
+                    <%= student.name %>
+                </td>
+                <td>
+                    <%= student.module %>
+                </td>
+                <td>
+                    <%= student.grade %>
+                </td>
+            </tr>
+        <% }) %>
+    </table>
+</body>
+
+</html>

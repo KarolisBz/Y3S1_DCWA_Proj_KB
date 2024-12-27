@@ -79,14 +79,14 @@ app.post("/updateStudent",
                 })
                 .catch((error) => {
                     console.log(error)
-                    res.render("updateStudent", { errors: [{"msg": error.sqlMessage}], student: req.body });
+                    res.render("updateStudent", { errors: [{ "msg": error.sqlMessage }], student: req.body });
                 });
         }
     })
 
 // add student page
 app.get('/students/add', (req, res) => {
-    res.render("addStudent", { "errors": undefined, student: {"sid":'', "name":'', "age":''} });
+    res.render("addStudent", { "errors": undefined, student: { "sid": '', "name": '', "age": '' } });
 });
 
 // handles adding student
@@ -98,6 +98,16 @@ app.post("/addStudent",
         check("age").isInt({ min: 18 })
             .withMessage("Age must be 18 or older"),
 
+        // custom validator checks if SID already exists
+        check("sid").custom(async (value) => {
+            const duplicateStudent = await mySqldb.getStudent(value);
+
+            if (duplicateStudent.length > 0) {
+                throw new Error(`Student ID ${value} already exists`);
+            }
+            return true;
+        }),
+
         check("sid").isLength({ min: 4 })
             .withMessage("SID should be a minimum of 4 characterss")
     ],
@@ -105,7 +115,7 @@ app.post("/addStudent",
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            res.render("addStudent", { errors: errors.errors, student: req.body})
+            res.render("addStudent", { errors: errors.errors, student: req.body })
         } else {
             mySqldb.addStudent(req.body)
                 .then((data) => {
@@ -114,14 +124,21 @@ app.post("/addStudent",
                 })
                 .catch((error) => {
                     console.log([error])
-                    res.render("addStudent", { errors: [{"msg": error.sqlMessage}], student: req.body });
+                    res.render("addStudent", { errors: [{ "msg": error.sqlMessage }], student: req.body });
                 });
         }
     })
 
 // grades //
 app.get('/grades', (req, res) => {
-    res.render('grades');
+    mySqldb.getAggrigatedGrades()
+    .then((data) => {
+        console.log(data)
+        res.render("grades", { "students": data });
+    })
+    .catch((error) => {
+        res.send(error)
+    })
 });
 
 // lecturers //

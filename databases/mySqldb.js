@@ -70,4 +70,24 @@ var addStudent = function (student) {
   })
 };
 
-module.exports = { getStudents, addStudent, updateStudent, getStudent}
+var getAggrigatedGrades = function () {
+  return new Promise((reslove, reject) => {
+    let largeQuery = `
+    SELECT s.name AS 'name', m.name AS 'module', g.grade AS 'grade' 
+    FROM student s 
+    LEFT JOIN grade g ON s.sid = g.sid 
+    LEFT JOIN module m ON g.mid = m.mid 
+    ORDER BY s.name, g.grade ASC;`
+
+    pool.query(largeQuery)
+      .then((data) => {
+        console.log("D=" + JSON.stringify(data));
+        reslove(data);
+      })
+      .catch((error) => {
+        reject(error)
+      })
+  })
+};
+
+module.exports = { getStudents, addStudent, updateStudent, getStudent, getAggrigatedGrades }
