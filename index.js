@@ -19,7 +19,7 @@ app.use(express.static('static'));
 app.use(express.static('pages'));
 
 // allows for easier validation
-const { check, validationResult } = require('express-validator');
+const { check, validationResult, checkExact } = require('express-validator');
 
 // application starts and listens on port 3004
 app.listen(3004, () => {
@@ -79,6 +79,41 @@ app.post("/updateStudent",
                 .catch((error) => {
                     console.log(error)
                     res.render("updateStudent", { errors: [error], student: req.body });
+                });
+        }
+    })
+
+// add student page
+app.get('/students/add', (req, res) => {
+    res.render("addStudent", { "errors": undefined });
+});
+
+// handles adding student
+app.post("/addStudent",
+    [
+        check("name").isLength({ min: 2 })
+            .withMessage("Name should be a minimum of 2 characters"),
+
+        check("age").isInt({ min: 18 })
+            .withMessage("Age must be 18 or older"),
+
+        check("sid").isLength({ min: 4 })
+            .withMessage("SID should be a minimum of 4 characterss")
+    ],
+    (req, res) => {
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.render("addStudent", { errors: errors.errors})
+        } else {
+            mySqldb.addStudent(req.body)
+                .then((data) => {
+                    //console.log(data)
+                    res.redirect("/students");
+                })
+                .catch((error) => {
+                    console.log([error])
+                    res.render("addStudent", { errors: [{"msg": error.sqlMessage}] });
                 });
         }
     })

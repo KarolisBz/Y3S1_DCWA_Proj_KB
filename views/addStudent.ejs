@@ -11,7 +11,7 @@
 <body>
     <!-- EJS BODY -->
     <a href="/home.html">Home</a>
-    <h1>Update Student</h1>
+    <h1>Add Student</h1>
 
     <!-- Display errors -->
     <% if (errors !=undefined) { %>
@@ -24,13 +24,13 @@
         </ul>
     <% } %>
 
-    <form action="/updateStudent" method="POST">
+    <form action="/addStudent" method="POST">
         <label>Student ID:</label>
-        <input type="text" name="sid" value="<%= student.sid %>" readonly><br>
+        <input type="text" name="sid"><br>
         <label>Name</label>
-        <input type="text" name="name" value="<%= student.name %>"><br>
+        <input type="text" name="name"><br>
         <label>Age</label>
-        <input type="number" name="age" value="<%= student.age %>"><br>
+        <input type="number" name="age"><br>
         <input type="submit" value="OK">
     </form>
 </body>

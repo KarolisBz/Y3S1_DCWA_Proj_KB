@@ -57,18 +57,17 @@ var updateStudent = function (student) {
   })
 };
 
-var deleteStudent = function (student_Id) {
+var addStudent = function (student) {
   return new Promise((reslove, reject) => {
-    pool
-      .query("DELETE FROM student WHERE student_id == " + student_Id + ";")
+    pool.query("INSERT INTO student (sid, name, age) VALUES ('" + student.sid + "', '" + student.name + "', " + student.age + ");")
       .then((data) => {
         console.log("D=" + JSON.stringify(data));
         reslove(data);
       })
       .catch((error) => {
-        reject(error);
-      });
-  });
+        reject(error)
+      })
+  })
 };
 
-module.exports = { getStudents, deleteStudent, updateStudent, getStudent}
+module.exports = { getStudents, addStudent, updateStudent, getStudent}
