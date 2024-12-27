@@ -132,16 +132,45 @@ app.post("/addStudent",
 // grades //
 app.get('/grades', (req, res) => {
     mySqldb.getAggrigatedGrades()
-    .then((data) => {
-        console.log(data)
-        res.render("grades", { "students": data });
-    })
-    .catch((error) => {
-        res.send(error)
-    })
+        .then((data) => {
+            console.log(data)
+            res.render("grades", { "students": data });
+        })
+        .catch((error) => {
+            res.send(error)
+        })
 });
 
 // lecturers //
 app.get('/lecturers', (req, res) => {
-    res.render('lecturers');
+    mongoDB.getLecturers()
+        .then((data) => {
+            console.log(data)
+            res.render("lecturers", { "lecturers": data, "errors": undefined });
+        })
+        .catch((error) => {
+            res.send(error)
+        })
+});
+
+// deletes lecturer
+app.get("/lecturer/delete/:lid", (req, res) => {
+    let lecturer_id = req.params.lid;
+
+    mySqldb.getModuleInfo()
+        .then((data) => {
+            // checking if lecturer teaches a module
+            let lecturerTeachesModule = data.some((module) => module.lecturer == lecturer_id);
+
+            // if lecturer teaches a module don't delete
+            if (lecturerTeachesModule) {
+                let errorMessage = `Cannot delete lecturer ${lecturer_id}. He/She has associated modules`;
+                res.render("lecturers", { "lecturers": undefined, "errors": [{ "msg": errorMessage }] });
+            } else {
+                mongoDB.deleteLecturer(lecturer_id)
+                    .then((data) => {
+                        res.render("lecturers", { "lecturers": data, "errors": undefined });
+                    })
+            }
+        })
 });

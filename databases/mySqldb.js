@@ -90,4 +90,17 @@ var getAggrigatedGrades = function () {
   })
 };
 
-module.exports = { getStudents, addStudent, updateStudent, getStudent, getAggrigatedGrades }
+var getModuleInfo = function () {
+  return new Promise((reslove, reject) => {
+    pool.query("SELECT * FROM module;")
+      .then((data) => {
+        console.log("D=" + JSON.stringify(data));
+        reslove(data);
+      })
+      .catch((error) => {
+        reject(error)
+      })
+  })
+};
+
+module.exports = { getStudents, addStudent, updateStudent, getStudent, getAggrigatedGrades, getModuleInfo }

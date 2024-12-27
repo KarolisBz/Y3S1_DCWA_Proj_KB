@@ -1,16 +1,17 @@
 const MongoClient = require("mongodb").MongoClient;
 MongoClient.connect("mongodb://127.0.0.1:27017")
   .then((client) => {
-    db = client.db("employeesDB");
-    coll = db.collection("employees");
+    db = client.db("proj2024MongoDB");
+    coll = db.collection("lecturers");
   })
   .catch((error) => {
     console.log(error.message);
   });
 
-var findAll = function () {
+// fetches all results in db coll
+var getLecturers = function () {
   return new Promise((resolve, reject) => {
-    var cursor = coll.find();
+    var cursor = coll.find().sort({ _id: 1 });
     cursor
       .toArray()
       .then((documents) => {
@@ -22,12 +23,11 @@ var findAll = function () {
   });
 };
 
-var addEmployee = function (employee) {
+var deleteLecturer = function (target_id) {
   return new Promise((resolve, reject) => {
-    coll
-      .insertOne(employee)
-      .then((documents) => {
-        resolve(documents);
+    coll.deleteOne({ _id: target_id })
+      .then((data) => {
+        resolve(data);
       })
       .catch((error) => {
         reject(error);
@@ -35,4 +35,4 @@ var addEmployee = function (employee) {
   });
 };
 
-module.exports = { findAll, addEmployee };
+module.exports = { getLecturers, deleteLecturer };

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students</title>
+    <link rel="stylesheet" href="styleSheet.css">
+</head>
+
+<body>
+    <!-- EJS BODY -->
+    <!-- display title if no errors-->
+    <% if (lecturers != undefined) { %><h1>Lecturers</h1> <% } %>
+    <a href="\home.html">Home</a>
+
+    <!-- Display errors -->
+    <% if (errors !=undefined) { %>
+        <h1>Error Message</h1>
+        <% errors.forEach((error)=> { %>
+            <h2><%= error.msg %></h2>
+        <% }) %>
+    <% } %>
+    
+    <!-- display Lecturers if it's not undefined -->
+    <% if (lecturers != undefined && lecturers.length > 0) { %>
+        <table>
+            <tr>
+                <th>Lecturer ID</th>
+                <th>Name</th>
+                <th>Department ID</th>
+                <th>Action</th>
+            </tr>
+            <% lecturers.forEach((lecturer)=>
+                { %>
+                <tr>
+                    <td>
+                        <%= lecturer._id %>
+                    </td>
+                    <td>
+                        <%= lecturer.name %>
+                    </td>
+                    <td>
+                        <%= lecturer.did %>
+                    </td>
+                    <td>
+                        <a href="/lecturer/delete/<%=lecturer._id%>">Delete</a>
+                    </td>
+                </tr>
+            <% }) %>
+        </table>
+    <% } %>
+</body>
+
+</html>
