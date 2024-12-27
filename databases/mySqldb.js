@@ -90,9 +90,9 @@ var getAggrigatedGrades = function () {
   })
 };
 
-var getModuleInfo = function () {
+var getLecturerModules = function (lecturer_Id) {
   return new Promise((reslove, reject) => {
-    pool.query("SELECT * FROM module;")
+    pool.query(`SELECT * FROM module WHERE lecturer = '${lecturer_Id}';`)
       .then((data) => {
         console.log("D=" + JSON.stringify(data));
         reslove(data);
@@ -103,4 +103,4 @@ var getModuleInfo = function () {
   })
 };
 
-module.exports = { getStudents, addStudent, updateStudent, getStudent, getAggrigatedGrades, getModuleInfo }
+module.exports = { getStudents, addStudent, updateStudent, getStudent, getAggrigatedGrades, getLecturerModules }

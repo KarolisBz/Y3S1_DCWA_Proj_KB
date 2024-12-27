@@ -157,10 +157,10 @@ app.get('/lecturers', (req, res) => {
 app.get("/lecturer/delete/:lid", (req, res) => {
     let lecturer_id = req.params.lid;
 
-    mySqldb.getModuleInfo()
+    mySqldb.getLecturerModules(lecturer_id)
         .then((data) => {
             // checking if lecturer teaches a module
-            let lecturerTeachesModule = data.some((module) => module.lecturer == lecturer_id);
+            let lecturerTeachesModule = data.length > 0;
 
             // if lecturer teaches a module don't delete
             if (lecturerTeachesModule) {
@@ -168,8 +168,8 @@ app.get("/lecturer/delete/:lid", (req, res) => {
                 res.render("lecturers", { "lecturers": undefined, "errors": [{ "msg": errorMessage }] });
             } else {
                 mongoDB.deleteLecturer(lecturer_id)
-                    .then((data) => {
-                        res.render("lecturers", { "lecturers": data, "errors": undefined });
+                    .then(() => {
+                        res.redirect("/lecturers");
                     })
             }
         })
