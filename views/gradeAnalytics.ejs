@@ -51,7 +51,8 @@
             .domain([0, 100])
             .range(["red", "green"]);
 
-        // moving the x and y axis to the bottom and left
+        // moving the x  axis to the bottom
+        // also adding x label
         svg.append("g")
             .attr("class", "x-axis")
             .attr("transform", `translate(0,${height})`)
@@ -64,7 +65,8 @@
             .style("text-anchor", "middle")
             .style("font-size", "2rem")
             .text("Modules");
-
+        
+        // styling y axes and adding its label
         svg.append("g")
             .attr("class", "y-axis")
             .call(d3.axisLeft(y).tickSizeOuter(0))
@@ -78,6 +80,7 @@
             .style("font-size", "2rem")
             .text("grade %");
 
+        // adding chart title to center
         svg.append("text")
             .attr("x", width / 2)
             .attr("y", -10)
@@ -85,9 +88,9 @@
             .style("font-size", "1.5rem")
             .text("Student grades by Module");
 
-        // Tooltip div
+        // creates Tooltip div
         const tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip")
+            .attr("class", "tooltip") // tooltip class for styling
             .style("position", "absolute")
             .style("background", "#f9f9f9")
             .style("padding", "5px")
@@ -96,15 +99,15 @@
             .style("pointer-events", "none")
             .style("opacity", 0);
 
+        // plotting points on the chart
         svg.selectAll(".dot")
-            .data(data)
-            .enter()
-            .append("circle")
+            .data(data) // bind each student to circle
+            .enter().append("circle") // new circle for each student that doesn't have a circle
             .attr("class", "dot")
             .attr("cx", d => x(d.module) + x.bandwidth() / 2)
             .attr("cy", d => y(d.grade))
-            .attr("r", d => Math.max(d.grade / 10, 5)) // Dot size relative to the grade, minimum size 5px
-            .attr("fill", d => colorScale(d.grade))
+            .attr("r", d => Math.max(d.grade / 10, 5)) // Dot radius relative to the grade, minimum size 5px
+            .attr("fill", d => colorScale(d.grade)) // color of the dot based on grade
             .on("mouseover", (event, d) => {
                 tooltip.transition().duration(190).style("opacity", .9);
                 tooltip.html(`Module: ${d.module}<br> Name: ${d.name}<br>Student ID: ${d.sid}<br> Grade: ${d.grade.toFixed(2)}%`)
@@ -115,7 +118,7 @@
                 tooltip.transition().duration(490).style("opacity", 0);
             });
 
-        // Increase the font size of the tick labels
+        // Increase the font size of the tick labels and axes labels
         svg.selectAll(".x-axis .tick text")
             .style("font-size", "1rem");
 
@@ -133,7 +136,8 @@
             .attr("height", height2 + margin2.top + margin2.bottom)
             .append("g")
             .attr("transform", `translate(${margin2.left},${margin2.top})`);
-
+        
+        // chart title
         minMaxAvgSvg.append("text")
             .attr("x", width2 / 2)
             .attr("y", -10)
@@ -141,6 +145,7 @@
             .style("font-size", "1.5rem")
             .text("Min Max Avg Module grades");
 
+        // aggregating data for min max average chart
         const minMaxAvgData = categories.map(category => {
             const grades = data.filter(d => d.module === category).map(d => d.grade);
             return {
@@ -151,15 +156,18 @@
             };
         });
 
+        // creating x axes scaler
         const minMaxAvgX = d3.scaleLinear()
             .domain([0, 100])
             .range([0, width2]);
 
+        // creating y axes scaler
         const minMaxAvgY = d3.scaleBand()
             .domain(categories)
             .range([0, height2])
             .padding(0.1);
 
+        // creating new group for x axes
         minMaxAvgSvg.append("g")
             .attr("class", "x-axis")
             .attr("transform", `translate(0,${height2})`)
@@ -173,6 +181,7 @@
             .style("font-size", "1.25rem")
             .text("grade %");
 
+        // creating new group for y axes
         minMaxAvgSvg.append("g")
             .attr("class", "y-axis")
             .call(d3.axisLeft(minMaxAvgY).tickSizeOuter(0))
@@ -186,17 +195,18 @@
             .style("font-size", "1.25rem")
             .text("Modules");
 
+        // create all minimum score bar
         minMaxAvgSvg.selectAll(".min-bar")
             .data(minMaxAvgData)
-            .enter()
-            .append("rect")
+            .enter().append("rect") // creats rectangle for data that doesn't have dom item
             .attr("class", "min-bar")
             .attr("x", 0)
             .attr("y", d => minMaxAvgY(d.module))
             .attr("width", d => minMaxAvgX(d.min))
-            .attr("height", minMaxAvgY.bandwidth() / 3)
+            .attr("height", minMaxAvgY.bandwidth() / 3) // 1/3 of free space for each categorie
             .attr("fill", "red");
 
+        // create all maximum score bar
         minMaxAvgSvg.selectAll(".max-bar")
             .data(minMaxAvgData)
             .enter()
@@ -208,6 +218,7 @@
             .attr("height", minMaxAvgY.bandwidth() / 3)
             .attr("fill", "green");
 
+        // create all average score bar
         minMaxAvgSvg.selectAll(".avg-bar")
             .data(minMaxAvgData)
             .enter()
@@ -227,7 +238,7 @@
             .style("padding", "5px")
             .style("border", "1px solid #FF0000")
             .style("border-radius", "5px")
-            .style("pointer-events", "none")
+            .style("pointer-events", "none") // makes sure the tooltip doesn't block the mouse events
             .style("opacity", 0);
 
         const maxTooltip = d3.select("body").append("div")
@@ -250,9 +261,10 @@
             .style("pointer-events", "none")
             .style("opacity", 0);
 
+        // add tooltip functionality to all min bars
         minMaxAvgSvg.selectAll(".min-bar")
             .on("mouseover", (event, d) => {
-                let student = data.filter(item => item.module === d.module && item.grade === d.min);
+                let student = data.filter(student => student.module === d.module && student.grade === d.min);
                 let name = student[0].name;
                 let sid = student[0].sid;
                 minTooltip.transition().duration(190).style("opacity", .9);
@@ -263,7 +275,8 @@
             .on("mouseout", () => {
                 minTooltip.transition().duration(490).style("opacity", 0);
             });
-
+        
+         // add tooltip functionality to all max bars
         minMaxAvgSvg.selectAll(".max-bar")
             .on("mouseover", (event, d) => {
                 const student = data.filter(item => item.module === d.module && item.grade === d.max);
@@ -277,7 +290,8 @@
             .on("mouseout", () => {
                 maxTooltip.transition().duration(490).style("opacity", 0);
             });
-
+        
+        // add tooltip functionality to all avg bars
         minMaxAvgSvg.selectAll(".avg-bar")
             .on("mouseover", (event, d) => {
                 avgTooltip.transition().duration(190).style("opacity", .9);
