@@ -19,7 +19,7 @@ app.use(express.static('static'));
 app.use(express.static('pages'));
 
 // allows for easier validation
-const { check, validationResult, checkExact } = require('express-validator');
+const { check, validationResult } = require('express-validator');
 
 // application starts and listens on port 3004
 app.listen(3004, () => {
