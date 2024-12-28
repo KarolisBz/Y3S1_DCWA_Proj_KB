@@ -99,12 +99,19 @@
             .style("pointer-events", "none")
             .style("opacity", 0);
 
+        // creates a random relative x position based on sid seed
+        function seededRandomFromGrade(sid) {
+            sid = sid.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+            var x = Math.sin(sid) * 10000;
+            return x - Math.floor(x);
+        }
+
         // plotting points on the chart
         svg.selectAll(".dot")
             .data(data) // bind each student to circle
             .enter().append("circle") // new circle for each student that doesn't have a circle
             .attr("class", "dot")
-            .attr("cx", d => x(d.module) + x.bandwidth() / 2)
+            .attr("cx", d => x(d.module) + (x.bandwidth() / 2) + (seededRandomFromGrade(d.sid) - 0.5) * x.bandwidth() * 0.2)
             .attr("cy", d => y(d.grade))
             .attr("r", d => Math.max(d.grade / 10, 5)) // Dot radius relative to the grade, minimum size 5px
             .attr("fill", d => colorScale(d.grade)) // color of the dot based on grade
