@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Page</title>
 </head>
+
 <body>
     <h1>Grade Analytics</h1>
     <a href="/">home</a><br>
@@ -13,18 +15,15 @@
     <div id="minMaxChart" style="display: inline-block; vertical-align: top;"></div>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script>
-        const categories = [
-            "Maths", "English", "Science", "History", "Geography", "Art", "Music", "PE", "IT", "RE"
-        ];
+        // error is not valid for this ejs to object conversion, you can ignore / suppress it
+        var data = JSON.parse(<%- JSON.stringify(data) %>);
+        const categories = [...new Set(data.map(d => d.module))];
+        const abbrvMap = data.reduce((acc, d) => {
+            acc[d.module] = d.ModAbbrv;
+            return acc;
+        }, {});
 
-        const names = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hannah", "Ivy", "Jack"];
-        const data = Array.from({ length: 10 }, (_, i) => ({
-            score: Math.random() * 100,
-            module: categories[Math.floor(Math.random() * categories.length)],
-            name: names[Math.floor(Math.random() * names.length)]
-        }));
-
-        const margin = {top: 28, right: 30, bottom: 100, left: 100};
+        const margin = { top: 28, right: 30, bottom: 100, left: 100 };
         const width = (window.innerWidth * 0.7) - margin.left - margin.right;
         const height = (window.innerHeight * 0.8) - margin.top - margin.bottom;
 
@@ -47,11 +46,16 @@
             .domain([0, 100])
             .range([height, 0]);
 
+        // color scale for grades
+        const colorScale = d3.scaleLinear()
+            .domain([0, 100])
+            .range(["red", "green"]);
+
         // moving the x and y axis to the bottom and left
         svg.append("g")
             .attr("class", "x-axis")
             .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x).tickSizeOuter(0))
+            .call(d3.axisBottom(x).tickFormat(d => abbrvMap[d]).tickSizeOuter(0))
             .append("text")
             .attr("class", "axis-label")
             .attr("x", width / 2)
@@ -72,14 +76,14 @@
             .attr("fill", "black")
             .style("text-anchor", "middle")
             .style("font-size", "2rem")
-            .text("Score %");
+            .text("grade %");
 
         svg.append("text")
             .attr("x", width / 2)
             .attr("y", -10)
             .attr("text-anchor", "middle")
             .style("font-size", "1.5rem")
-            .text("Student Scores by Module");
+            .text("Student grades by Module");
 
         // Tooltip div
         const tooltip = d3.select("body").append("div")
@@ -98,17 +102,17 @@
             .append("circle")
             .attr("class", "dot")
             .attr("cx", d => x(d.module) + x.bandwidth() / 2)
-            .attr("cy", d => y(d.score))
-            .attr("r", d => Math.max(d.score / 10, 5)) // Dot size relative to the score, minimum size 5px
-            .attr("fill", "steelblue")
+            .attr("cy", d => y(d.grade))
+            .attr("r", d => Math.max(d.grade / 10, 5)) // Dot size relative to the grade, minimum size 5px
+            .attr("fill", d => colorScale(d.grade))
             .on("mouseover", (event, d) => {
-            tooltip.transition().duration(200).style("opacity", .9);
-            tooltip.html(`Module: ${d.module}<br> Name: ${d.name}<br> Score: ${d.score.toFixed(2)}%`)
-            .style("left", (event.pageX + 5) + "px")
-            .style("top", (event.pageY - 28) + "px");
+                tooltip.transition().duration(190).style("opacity", .9);
+                tooltip.html(`Module: ${d.module}<br> Name: ${d.name}<br>Student ID: ${d.sid}<br> Grade: ${d.grade.toFixed(2)}%`)
+                    .style("left", (event.pageX + 5) + "px")
+                    .style("top", (event.pageY - 28) + "px");
             })
             .on("mouseout", () => {
-            tooltip.transition().duration(500).style("opacity", 0);
+                tooltip.transition().duration(490).style("opacity", 0);
             });
 
         // Increase the font size of the tick labels
@@ -118,47 +122,48 @@
         svg.selectAll(".y-axis .tick text")
             .style("font-size", "1rem");
 
-        // creating min max chart
-        const margin2 = {top: 20 + parseFloat(getComputedStyle(document.documentElement).fontSize) * 1.5, right: 30, bottom: 100, left: 100};
+        // creating min max average chart
+        const margin2 = { top: 20 + parseFloat(getComputedStyle(document.documentElement).fontSize) * 1.5, right: 30, bottom: 100, left: 125 };
         const width2 = (window.innerWidth * 0.25) - margin2.left - margin2.right;
         const height2 = (window.innerHeight * 0.85) - margin2.top - margin2.bottom;
 
-        const minMaxSvg = d3.select("#minMaxChart")
+        const minMaxAvgSvg = d3.select("#minMaxChart")
             .append("svg")
             .attr("width", width2 + margin2.left + margin2.right)
             .attr("height", height2 + margin2.top + margin2.bottom)
             .append("g")
             .attr("transform", `translate(${margin2.left},${margin2.top})`);
 
-        minMaxSvg.append("text")
+        minMaxAvgSvg.append("text")
             .attr("x", width2 / 2)
             .attr("y", -10)
             .attr("text-anchor", "middle")
             .style("font-size", "1.5rem")
-            .text("Min Max Module Scores");
+            .text("Min Max Avg Module grades");
 
-        const minMaxData = categories.map(category => {
-            const scores = data.filter(d => d.module === category).map(d => d.score);
+        const minMaxAvgData = categories.map(category => {
+            const grades = data.filter(d => d.module === category).map(d => d.grade);
             return {
                 module: category,
-                min: d3.min(scores),
-                max: d3.max(scores)
+                min: d3.min(grades),
+                max: d3.max(grades),
+                avg: d3.mean(grades)
             };
         });
 
-        const minMaxX = d3.scaleLinear()
+        const minMaxAvgX = d3.scaleLinear()
             .domain([0, 100])
             .range([0, width2]);
 
-        const minMaxY = d3.scaleBand()
+        const minMaxAvgY = d3.scaleBand()
             .domain(categories)
             .range([0, height2])
             .padding(0.1);
 
-        minMaxSvg.append("g")
+        minMaxAvgSvg.append("g")
             .attr("class", "x-axis")
             .attr("transform", `translate(0,${height2})`)
-            .call(d3.axisBottom(minMaxX).tickSizeOuter(0))
+            .call(d3.axisBottom(minMaxAvgX).tickSizeOuter(0))
             .append("text")
             .attr("class", "axis-label")
             .attr("x", width2 / 2)
@@ -166,11 +171,11 @@
             .attr("fill", "black")
             .style("text-anchor", "middle")
             .style("font-size", "1.25rem")
-            .text("Score %");
+            .text("grade %");
 
-        minMaxSvg.append("g")
+        minMaxAvgSvg.append("g")
             .attr("class", "y-axis")
-            .call(d3.axisLeft(minMaxY).tickSizeOuter(0))
+            .call(d3.axisLeft(minMaxAvgY).tickSizeOuter(0))
             .append("text")
             .attr("class", "axis-label")
             .attr("transform", "rotate(-90)")
@@ -181,29 +186,40 @@
             .style("font-size", "1.25rem")
             .text("Modules");
 
-        minMaxSvg.selectAll(".min-bar")
-            .data(minMaxData)
+        minMaxAvgSvg.selectAll(".min-bar")
+            .data(minMaxAvgData)
             .enter()
             .append("rect")
             .attr("class", "min-bar")
             .attr("x", 0)
-            .attr("y", d => minMaxY(d.module))
-            .attr("width", d => minMaxX(d.min))
-            .attr("height", minMaxY.bandwidth() / 2)
+            .attr("y", d => minMaxAvgY(d.module))
+            .attr("width", d => minMaxAvgX(d.min))
+            .attr("height", minMaxAvgY.bandwidth() / 3)
             .attr("fill", "red");
 
-        minMaxSvg.selectAll(".max-bar")
-            .data(minMaxData)
+        minMaxAvgSvg.selectAll(".max-bar")
+            .data(minMaxAvgData)
             .enter()
             .append("rect")
             .attr("class", "max-bar")
             .attr("x", 0)
-            .attr("y", d => minMaxY(d.module) + minMaxY.bandwidth() / 2)
-            .attr("width", d => minMaxX(d.max))
-            .attr("height", minMaxY.bandwidth() / 2)
+            .attr("y", d => minMaxAvgY(d.module) + minMaxAvgY.bandwidth() / 3)
+            .attr("width", d => minMaxAvgX(d.max))
+            .attr("height", minMaxAvgY.bandwidth() / 3)
             .attr("fill", "green");
 
-        // Tooltip div for minMaxChart
+        minMaxAvgSvg.selectAll(".avg-bar")
+            .data(minMaxAvgData)
+            .enter()
+            .append("rect")
+            .attr("class", "avg-bar")
+            .attr("x", 0)
+            .attr("y", d => minMaxAvgY(d.module) + 2 * minMaxAvgY.bandwidth() / 3)
+            .attr("width", d => minMaxAvgX(d.avg))
+            .attr("height", minMaxAvgY.bandwidth() / 3)
+            .attr("fill", "blue");
+
+        // Tooltip div for minMaxAvgChart
         const minTooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("position", "absolute")
@@ -224,31 +240,55 @@
             .style("pointer-events", "none")
             .style("opacity", 0);
 
-        minMaxSvg.selectAll(".min-bar")
+        const avgTooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("position", "absolute")
+            .style("background", "#f9f9f9")
+            .style("padding", "5px")
+            .style("border", "1px solid #0000FF")
+            .style("border-radius", "5px")
+            .style("pointer-events", "none")
+            .style("opacity", 0);
+
+        minMaxAvgSvg.selectAll(".min-bar")
             .on("mouseover", (event, d) => {
-            const scores = data.filter(item => item.module === d.module && item.score === d.min);
-            const names = scores.map(item => item.name).join(", ");
-            minTooltip.transition().duration(200).style("opacity", .9);
-            minTooltip.html(`Module: ${d.module}<br> Name: ${names}<br> Min Score: ${d.min.toFixed(2)}%`)
-                .style("left", (event.pageX + 5) + "px")
-                .style("top", (event.pageY - 28) + "px");
+                let student = data.filter(item => item.module === d.module && item.grade === d.min);
+                let name = student[0].name;
+                let sid = student[0].sid;
+                minTooltip.transition().duration(190).style("opacity", .9);
+                minTooltip.html(`Name: ${name}<br>Student ID: ${sid}<br> Min grade: ${d.min.toFixed(2)}%`)
+                    .style("left", (event.pageX + 5) + "px")
+                    .style("top", (event.pageY - 28) + "px");
             })
             .on("mouseout", () => {
-                minTooltip.transition().duration(500).style("opacity", 0);
+                minTooltip.transition().duration(490).style("opacity", 0);
             });
 
-        minMaxSvg.selectAll(".max-bar")
+        minMaxAvgSvg.selectAll(".max-bar")
             .on("mouseover", (event, d) => {
-            const scores = data.filter(item => item.module === d.module && item.score === d.max);
-            const names = scores.map(item => item.name).join(", ");
-            maxTooltip.transition().duration(200).style("opacity", .9);
-            maxTooltip.html(`Module: ${d.module}<br> Name: ${names}<br> Max Score: ${d.max.toFixed(2)}%`)
-                .style("left", (event.pageX + 5) + "px")
-                .style("top", (event.pageY - 28) + "px");
+                const student = data.filter(item => item.module === d.module && item.grade === d.max);
+                let name = student[0].name;
+                let sid = student[0].sid;
+                maxTooltip.transition().duration(190).style("opacity", .9);
+                maxTooltip.html(`Name: ${name}<br>Student ID: ${sid}<br> Max grade: ${d.max.toFixed(2)}%`)
+                    .style("left", (event.pageX + 5) + "px")
+                    .style("top", (event.pageY - 28) + "px");
             })
             .on("mouseout", () => {
-                maxTooltip.transition().duration(500).style("opacity", 0);
+                maxTooltip.transition().duration(490).style("opacity", 0);
+            });
+
+        minMaxAvgSvg.selectAll(".avg-bar")
+            .on("mouseover", (event, d) => {
+                avgTooltip.transition().duration(190).style("opacity", .9);
+                avgTooltip.html(`Avg grade: ${d.avg.toFixed(2)}%`)
+                    .style("left", (event.pageX + 5) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", () => {
+                avgTooltip.transition().duration(490).style("opacity", 0);
             });
     </script>
 </body>
+
 </html>

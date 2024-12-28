@@ -177,5 +177,26 @@ app.get("/lecturer/delete/:lid", (req, res) => {
 
 // grade analytics//
 app.get('/gradeAnalytics', (req, res) => {
-    res.sendFile(__dirname + "/pages/gradeAnalytics.html");
+    mySqldb.getExistingGrades()
+        .then((scoreData) => {
+            res.render("gradeAnalytics", { "data": JSON.stringify(scoreData) });
+        })
+        .catch((error) => {
+            res.send(error)
+        })
 });
+
+/*
+// grade analytics//
+app.get('/gradeAnalytics', (req, res) => {
+    mySqldb.getExistingGrades()
+        .then((scoreData) => {
+            const plainData = JSON.parse(JSON.stringify(scoreData));
+            console.log(plainData)
+            res.render("gradeAnalytics", { "data": plainData });
+        })
+        .catch((error) => {
+            res.send(error)
+        })
+});
+*/

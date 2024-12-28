@@ -103,4 +103,25 @@ var getLecturerModules = function (lecturer_Id) {
   })
 };
 
-module.exports = { getStudents, addStudent, updateStudent, getStudent, getAggrigatedGrades, getLecturerModules }
+// doesn't reutrn empty values
+var getExistingGrades = function () {
+  let largeQuery = `
+    SELECT s.name AS 'name', m.name AS 'module', g.grade AS 'grade', g.mid AS "ModAbbrv", s.sid AS "sid" 
+    FROM student s 
+    JOIN grade g ON s.sid = g.sid 
+    JOIN module m ON g.mid = m.mid 
+    ORDER BY s.name, g.grade ASC;`
+
+  return new Promise((reslove, reject) => {
+    pool.query(largeQuery)
+      .then((data) => {
+        console.log("D=" + JSON.stringify(data));
+        reslove(data);
+      })
+      .catch((error) => {
+        reject(error)
+      })
+  })
+};
+
+module.exports = { getStudents, addStudent, updateStudent, getStudent, getAggrigatedGrades, getLecturerModules, getExistingGrades }
