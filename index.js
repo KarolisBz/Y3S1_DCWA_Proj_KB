@@ -61,10 +61,10 @@ app.get('/student/update/:sid', (req, res) => {
 app.post("/updateStudent",
     [
         check("name").isLength({ min: 2 })
-            .withMessage("Name should be a minimum of 2 characters"),
+            .withMessage("Student Name should be at least 2 characters"),
 
         check("age").isInt({ min: 18 })
-            .withMessage("Age must be 18 or older")
+            .withMessage("Student Age should be atleast 18"),
     ],
     (req, res) => {
 
@@ -93,10 +93,10 @@ app.get('/students/add', (req, res) => {
 app.post("/addStudent",
     [
         check("name").isLength({ min: 2 })
-            .withMessage("Name should be a minimum of 2 characters"),
+            .withMessage("Student Name should be at least 2 characters"),
 
         check("age").isInt({ min: 18 })
-            .withMessage("Age must be 18 or older"),
+            .withMessage("Student Age should be atleast 18"),
 
         // custom validator checks if SID already exists
         check("sid").custom(async (value) => {
@@ -108,10 +108,11 @@ app.post("/addStudent",
             return true;
         }),
 
-        check("sid").isLength({ min: 4 })
-            .withMessage("SID should be a minimum of 4 characterss")
+        check("sid").isLength({ min: 4, max: 4 })
+            .withMessage("Student ID must be 4 characters")
     ],
     (req, res) => {
+
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -185,18 +186,3 @@ app.get('/gradeAnalytics', (req, res) => {
             res.send(error)
         })
 });
-
-/*
-// grade analytics//
-app.get('/gradeAnalytics', (req, res) => {
-    mySqldb.getExistingGrades()
-        .then((scoreData) => {
-            const plainData = JSON.parse(JSON.stringify(scoreData));
-            console.log(plainData)
-            res.render("gradeAnalytics", { "data": plainData });
-        })
-        .catch((error) => {
-            res.send(error)
-        })
-});
-*/
